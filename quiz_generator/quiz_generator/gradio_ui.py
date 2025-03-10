@@ -113,9 +113,6 @@ def generate_teacher_view(learning_objective, questions):
     output = f"## Generated Quiz: {learning_objective}\n\n"
     output += f"**Generated at:** {current_time} | **Questions:** {len(questions)}\n\n"
 
-    # Add a print button for the quiz
-    output += '<button onclick="window.print()" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Print Quiz</button>\n\n'
-
     for i, q in enumerate(questions, 1):
         # Basic question formatting
         question_output = (
