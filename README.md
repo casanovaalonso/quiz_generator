@@ -96,10 +96,6 @@ ALLOWED_ORIGINS=*
 ```bash
 # Using Poetry
 poetry run python -m quiz_generator.app
-
-# Using direct execution
-cd quiz_generator
-python app.py
 ```
 
 The API will be available at `http://localhost:5000`.
@@ -109,10 +105,6 @@ The API will be available at `http://localhost:5000`.
 ```bash
 # Using Poetry
 poetry run python -m quiz_generator.gradio_ui
-
-# Using direct execution
-cd quiz_generator
-python gradio_ui.py
 ```
 
 The web interface will be available at `http://localhost:7860`.
@@ -152,40 +144,6 @@ The web interface will be available at `http://localhost:7860`.
 }
 ```
 
-### Health Check
-
-**Endpoint**: `GET /health`
-
-**Response**:
-```json
-{
-  "status": "healthy"
-}
-```
-
-## Programmatic Usage
-
-You can also use the generator and validator directly in your Python code:
-
-```python
-from quiz_generator.generator import generate_quiz
-from quiz_generator.validator import validate_quiz_questions
-import asyncio
-
-# Generate quiz questions
-learning_objective = "Understand the structure of DNA"
-quiz_questions = generate_quiz(learning_objective, num_questions=3)
-
-# Validate quiz questions
-async def validate_quiz():
-    validated_questions = await validate_quiz_questions(quiz_questions)
-    return validated_questions
-
-# Run validation
-loop = asyncio.get_event_loop()
-validated_questions = loop.run_until_complete(validate_quiz())
-```
-
 ## Testing
 
 Run the test suite using pytest:
@@ -193,9 +151,6 @@ Run the test suite using pytest:
 ```bash
 # Using Poetry
 poetry run pytest
-
-# Using pytest directly
-pytest
 ```
 
 ## Future Improvements
