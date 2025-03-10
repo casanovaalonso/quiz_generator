@@ -2,4 +2,4 @@
 __version__ = "0.1.0"
 
 # Import key classes for easier access
-from models.quiz import QuizQuestion, QuizOutput, ValidationResult
+from app.models.quiz import QuizQuestion, QuizOutput, ValidationResult

@@ -11,8 +11,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # Import from local modules
-from models.quiz import QuizQuestion, QuizOutput
-from validator import validate_quiz_questions
+from app.models.quiz import QuizQuestion, QuizOutput
+from app.validator import validate_quiz_questions
 
 # Load environment variables
 load_dotenv()
