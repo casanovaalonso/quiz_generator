@@ -1,6 +1,6 @@
 import json
 import pytest
-from quiz_generator.app import app
+from app.app import app
 
 
 @pytest.fixture

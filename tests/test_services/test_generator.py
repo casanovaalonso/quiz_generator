@@ -1,8 +1,8 @@
 # tests/test_services/test_generator.py
 import pytest
 from unittest.mock import patch, MagicMock
-from quiz_generator.generator import generate_quiz
-from quiz_generator.models.quiz import QuizQuestion
+from app.generator import generate_quiz
+from app.models.quiz import QuizQuestion
 
 
 @pytest.fixture
