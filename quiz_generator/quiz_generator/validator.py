@@ -17,7 +17,7 @@ from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_openai import ChatOpenAI
 
 # Import data models
-from quiz_generator.models.quiz import QuizQuestion, ValidationResult
+from models.quiz import QuizQuestion, ValidationResult
 
 # Load environment variables
 load_dotenv()
