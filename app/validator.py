@@ -45,7 +45,7 @@ tools = [
 ]
 
 # Initialize LangChain components
-MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+MODEL_NAME = os.getenv("VALIDATOR_OPENAI_MODEL", "gpt-4o-mini")
 llm = ChatOpenAI(model=MODEL_NAME, temperature=0)
 agent = initialize_agent(
     tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True
@@ -55,91 +55,53 @@ agent = initialize_agent(
 def validate_answer(
     question_text: str, correct_answer: str, explanation: str
 ) -> ValidationResult:
-    """
-    Validates only the correct answer of a quiz question.
-
-    Args:
-        question_text: The text of the quiz question
-        correct_answer: The correct answer option text
-        explanation: The explanation for why the answer is correct
-
-    Returns:
-        ValidationResult: An object containing validation outcome, explanation, and sources
-    """
     instructions = """
-    You are a validation agent for educational quiz questions. Your task is to validate whether the provided correct answer to a quiz question is factually accurate.
+    You are a validation agent for educational quiz questions. Your task is to validate whether the provided correct answer is factually accurate using ONLY the Search tool. Do not rely on prior knowledge.
 
-    To validate the answer:
-    1. Generate search queries targeting academic information about the topic.
-    2. Use the search tool to find relevant information from reliable sources.
-    3. Analyze the search results to determine if the correct answer is supported by factual information.
-    4. Focus only on determining if the provided correct answer is actually correct.
-    5. If the information is inconclusive or contradictory, indicate that in the result.
-
-    CRITICAL INSTRUCTIONS FOR SOURCES:
-    - Only include actual URLs that appear directly in the search results.
-    - Do NOT fabricate, create, or modify any URLs.
-    - If no clear source URLs are found, leave the sources list empty or include only exact URLs from the search results.
-    - Check that each URL is a complete, valid URL that was present in the search results.
-    - If you're unsure about a URL's validity, do not include it.
-    - Include only primary sources, academic references, or authoritative educational websites.
-    - Avoid referencing social media, forums, or blogs as evidence.
-
-    Once you have gathered enough information, provide your final answer in the following JSON format:
-    {
-        "is_correct": true/false/null,
-        "explanation": "A brief explanation of your findings about the correctness of the answer",
-        "sources": ["list", "of", "source", "URLs"]
-    }
-    - Set "is_correct" to true if the answer is verified correct, false if it's wrong, or null if inconclusive.
-    - You may leave the sources list empty if no reliable sources were found (e.g., "sources": [])
+    Steps:
+    1. Generate a targeted search query for academic or authoritative information.
+    2. Use the Search tool to gather results.
+    3. Extract factual evidence and exact URLs from the search results.
+    4. Determine if the correct answer is supported by this evidence.
+    5. Return a JSON object:
+       {
+           "is_correct": true/false/null,
+           "explanation": "Your findings based on search results",
+           "sources": ["list", "of", "exact", "URLs", "from", "search"]
+       }
+    - 'sources' must contain only URLs directly from the search results, or be empty if none are found.
     """
 
     claim = f"Question: '{question_text}'\nCorrect answer: '{correct_answer}'\nExplanation: {explanation}"
+    logger.info(f"Validating claim: {claim[:100]}...")
 
     try:
-        logger.info(f"Validating claim: {claim[:100]}...")
         raw_result = agent.run(f"{instructions}\n\nAnswer to validate: {claim}")
+        logger.info(f"Raw agent result: {raw_result}")
 
-        # Extract JSON from the result
-        if "Final Answer:" in raw_result:
-            final_answer = raw_result.split("Final Answer:")[-1].strip()
-        else:
-            json_match = re.search(r"({[\s\S]*})", raw_result)
-            if json_match:
-                final_answer = json_match.group(1)
-            else:
-                raise ValueError("No structured response found")
+        # Extract JSON
+        json_match = re.search(r"({[\s\S]*})", raw_result)
+        if not json_match:
+            raise ValueError("No JSON found in response")
+        result_dict = json.loads(json_match.group(1))
 
-        result_dict = json.loads(final_answer)
+        # Clean sources
+        cleaned_sources = [
+            source
+            for source in result_dict.get("sources", [])
+            if source.startswith("http") and len(source) > 10  # Basic URL check
+        ]
+        result_dict["sources"] = cleaned_sources
 
-        # Validate sources - only allow properly formatted URLs
-        if "sources" in result_dict:
-            cleaned_sources = []
-            for source in result_dict["sources"]:
-                # Only include sources that look like actual URLs
-                if source.startswith("http") and "." in source:
-                    cleaned_sources.append(source)
-            result_dict["sources"] = cleaned_sources
+        return ValidationResult(**result_dict)
 
-        validation_result = ValidationResult(**result_dict)
-
-    except json.JSONDecodeError:
-        logger.error(f"JSON decode error for validation result: {raw_result}")
-        validation_result = ValidationResult(
-            is_correct=None,
-            explanation="Could not determine if the answer is correct. The validation system failed to parse the results.",
-            sources=[],
-        )
     except Exception as e:
-        logger.error(f"Error validating answer: {str(e)}")
-        validation_result = ValidationResult(
+        logger.error(f"Validation error: {str(e)}")
+        return ValidationResult(
             is_correct=None,
-            explanation=f"Could not validate the answer: {str(e)}",
+            explanation=f"Validation failed: {str(e)}",
             sources=[],
         )
-
-    return validation_result
 
 
 async def validate_question(question: QuizQuestion) -> QuizQuestion:

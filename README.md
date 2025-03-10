@@ -82,12 +82,14 @@ Create a `.env` file in the root directory:
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4o-mini
+VALIDATOR_OPENAI_MODEL=gpt-4o
 PORT=5000
 DEBUG_MODE=True
 DEFAULT_NUM_QUESTIONS=3
 MAX_NUM_QUESTIONS=10
 ALLOWED_ORIGINS=*
 ```
+We are using 4o to validate the claims as it is a more capable model. 
 
 ## Running the Application
 
