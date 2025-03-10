@@ -7,9 +7,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 # Import from local modules
-from generator import generate_quiz
-from validator import validate_quiz_questions
-from quiz_generator.models import *
+from quiz_generator.generator import generate_quiz
+from quiz_generator.validator import validate_quiz_questions
+from quiz_generator.models.quiz import QuizQuestion, QuizOutput, ValidationResult
 
 # Load environment variables
 load_dotenv()
