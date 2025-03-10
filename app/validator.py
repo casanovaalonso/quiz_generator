@@ -71,10 +71,19 @@ def validate_answer(
 
     To validate the answer:
     1. Generate search queries targeting academic information about the topic.
-    2. Use the search tool to find relevant information.
+    2. Use the search tool to find relevant information from reliable sources.
     3. Analyze the search results to determine if the correct answer is supported by factual information.
     4. Focus only on determining if the provided correct answer is actually correct.
     5. If the information is inconclusive or contradictory, indicate that in the result.
+
+    CRITICAL INSTRUCTIONS FOR SOURCES:
+    - Only include actual URLs that appear directly in the search results.
+    - Do NOT fabricate, create, or modify any URLs.
+    - If no clear source URLs are found, leave the sources list empty or include only exact URLs from the search results.
+    - Check that each URL is a complete, valid URL that was present in the search results.
+    - If you're unsure about a URL's validity, do not include it.
+    - Include only primary sources, academic references, or authoritative educational websites.
+    - Avoid referencing social media, forums, or blogs as evidence.
 
     Once you have gathered enough information, provide your final answer in the following JSON format:
     {
@@ -83,7 +92,7 @@ def validate_answer(
         "sources": ["list", "of", "source", "URLs"]
     }
     - Set "is_correct" to true if the answer is verified correct, false if it's wrong, or null if inconclusive.
-    - Include at least one source if possible.
+    - You may leave the sources list empty if no reliable sources were found (e.g., "sources": [])
     """
 
     claim = f"Question: '{question_text}'\nCorrect answer: '{correct_answer}'\nExplanation: {explanation}"
@@ -103,6 +112,16 @@ def validate_answer(
                 raise ValueError("No structured response found")
 
         result_dict = json.loads(final_answer)
+
+        # Validate sources - only allow properly formatted URLs
+        if "sources" in result_dict:
+            cleaned_sources = []
+            for source in result_dict["sources"]:
+                # Only include sources that look like actual URLs
+                if source.startswith("http") and "." in source:
+                    cleaned_sources.append(source)
+            result_dict["sources"] = cleaned_sources
+
         validation_result = ValidationResult(**result_dict)
 
     except json.JSONDecodeError:
