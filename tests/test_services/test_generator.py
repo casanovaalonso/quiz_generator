@@ -1,20 +1,17 @@
-# tests/test_services/test_generator.py
 import pytest
 from unittest.mock import patch, MagicMock
 from app.generator import generate_quiz
-from app.models.quiz import QuizQuestion
+from app.models.quiz import QuizQuestion, QuizOutput
 
 
-@pytest.fixture
-def quiz_generator():
-    """Create a QuizGenerator instance for testing."""
-    return QuizGenerator()
-
-
-def test_generate_quiz_success(quiz_generator):
+def test_generate_quiz_success():
     """Test successful quiz generation."""
-    # Mock the OpenAI response
-    mock_content = """
+    # Create a mock response that matches what OpenAI client returns
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[
+        0
+    ].message.content = """
     {
         "questions": [
             {
@@ -30,12 +27,12 @@ def test_generate_quiz_success(quiz_generator):
     }
     """
 
-    mock_response = MagicMock()
-    mock_response.choices = [MagicMock()]
-    mock_response.choices[0].message.content = mock_content
+    # Patch the OpenAI client's create method
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
 
-    with patch("openai.OpenAI.chat.completions.create", return_value=mock_response):
-        questions = quiz_generator.generate_quiz(
+    with patch("app.generator.client", mock_client):
+        questions = generate_quiz(
             learning_objective="Name the capital of France", num_questions=1
         )
 
@@ -44,12 +41,14 @@ def test_generate_quiz_success(quiz_generator):
         assert questions[0].correct_answer == "a"
 
 
-def test_generate_quiz_error_handling(quiz_generator):
+def test_generate_quiz_error_handling():
     """Test error handling during quiz generation."""
-    with patch(
-        "openai.OpenAI.chat.completions.create", side_effect=Exception("API Error")
-    ):
-        questions = quiz_generator.generate_quiz(
+    # Patch the OpenAI client to raise an exception
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = Exception("API Error")
+
+    with patch("app.generator.client", mock_client):
+        questions = generate_quiz(
             learning_objective="Test error handling", num_questions=1
         )
 
