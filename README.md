@@ -19,23 +19,23 @@ The project follows a modular architecture with clear separation of concerns:
 
 ```
 quiz-generator/
-├── quiz_generator/            # Main package
-│   ├── __init__.py            # Package initialization
-│   ├── app.py                 # Flask API entry point
-│   ├── generator.py           # Quiz generation logic
-│   ├── validator.py           # Answer validation service
-│   ├── gradio_ui.py           # Gradio-based web interface
-│   ├── models/                # Data models
-│   │   ├── __init__.py
-│   │   └── quiz.py            # Pydantic models for quiz data
-│   └── notebooks/             # Development notebooks
-│       └── prototype.ipynb    # Prototyping and testing
-├── tests/                     # Test suite
-│   ├── __init__.py
-│   ├── test_api/              # API tests
-│   └── test_services/         # Service tests
-├── pyproject.toml             # Project configuration and dependencies
-└── README.md                  # This file
+├── app/                      # Main package
+│   ├── init.py           # Package initialization
+│   ├── app.py                # Flask API entry point
+│   ├── generator.py          # Quiz generation logic
+│   ├── validator.py          # Answer validation service
+│   ├── gradio_ui.py          # Gradio-based web interface
+│   ├── models/               # Data models
+│   │   ├── init.py
+│   │   └── quiz.py           # Pydantic models for quiz data
+├── notebooks/                # Development notebooks
+│   └── prototype.ipynb       # Prototyping and testing
+├── tests/                    # Test suite
+│   ├── init.py
+│   ├── test_api/             # API tests
+│   └── test_services/        # Service tests
+├── pyproject.toml            # Project configuration and dependencies
+└── README.md                 # This file
 ```
 
 ### Core Components
