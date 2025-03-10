@@ -95,7 +95,7 @@ ALLOWED_ORIGINS=*
 
 ```bash
 # Using Poetry
-poetry run python -m quiz_generator.app
+poetry run python -m app.app
 ```
 
 The API will be available at `http://localhost:5000`.
@@ -104,7 +104,7 @@ The API will be available at `http://localhost:5000`.
 
 ```bash
 # Using Poetry
-poetry run python -m quiz_generator.gradio_ui
+poetry run python -m app.gradio_ui
 ```
 
 The web interface will be available at `http://localhost:7860`.
